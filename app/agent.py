@@ -27,6 +27,7 @@ from google.adk.apps import App
 from google.adk.models import Gemini
 from google.adk.tools import ToolContext
 from google.adk.tools.preload_memory_tool import PreloadMemoryTool
+from google.adk.tools.load_memory_tool import LoadMemoryTool
 from google.cloud import firestore
 from google.genai import types
 
@@ -713,11 +714,17 @@ def save_traveler_profile(
     food_habits_and_allergies: Optional[str] = None,
     hotel_preferences: Optional[str] = None,
     packing_and_shopping_interests: Optional[str] = None,
+    destination_interests: Optional[str] = None,
+    trip_duration_days: Optional[int] = None,
+    budget_tier: Optional[str] = None,
+    passport_country: Optional[str] = None,
+    additional_preferences: Optional[str] = None,
     tool_context: Optional[ToolContext] = None,
 ) -> dict[str, Any]:
     """Saves or updates individual attributes of the traveler's profile in session state.
 
-    Supports partial, incremental updates so preferences can be recorded one answer at a time.
+    Supports partial, incremental updates so all user details, answers, and preferences
+    are recorded and remembered to curate custom travel itineraries and recommendations.
     """
     existing_profile = tool_context.state.get("traveler_profile", {}) if tool_context else {}
 
@@ -733,6 +740,16 @@ def save_traveler_profile(
         existing_profile["hotel_preferences"] = hotel_preferences
     if packing_and_shopping_interests:
         existing_profile["packing_and_shopping_interests"] = packing_and_shopping_interests
+    if destination_interests:
+        existing_profile["destination_interests"] = destination_interests
+    if trip_duration_days:
+        existing_profile["trip_duration_days"] = trip_duration_days
+    if budget_tier:
+        existing_profile["budget_tier"] = budget_tier
+    if passport_country:
+        existing_profile["passport_country"] = passport_country
+    if additional_preferences:
+        existing_profile["additional_preferences"] = additional_preferences
 
     existing_profile["updated_at"] = datetime.datetime.now().isoformat()
 
@@ -756,7 +773,7 @@ def get_traveler_profile(tool_context: ToolContext) -> dict[str, Any]:
     if not profile:
         return {
             "status": "empty",
-            "message": "No profile details collected yet.",
+            "message": "No profile details collected yet in this session.",
             "known_fields": {},
             "missing_fields": [
                 "traveler_name",
@@ -764,7 +781,10 @@ def get_traveler_profile(tool_context: ToolContext) -> dict[str, Any]:
                 "food_habits_and_allergies",
                 "hotel_preferences",
                 "packing_and_shopping_interests",
-                "travel_history",
+                "destination_interests",
+                "trip_duration_days",
+                "budget_tier",
+                "passport_country",
             ],
         }
 
@@ -774,7 +794,12 @@ def get_traveler_profile(tool_context: ToolContext) -> dict[str, Any]:
         "food_habits_and_allergies",
         "hotel_preferences",
         "packing_and_shopping_interests",
+        "destination_interests",
+        "trip_duration_days",
+        "budget_tier",
+        "passport_country",
         "travel_history",
+        "additional_preferences",
     ]
     known = {k: v for k, v in profile.items() if v and k != "updated_at"}
     missing = [f for f in all_fields if f not in known]
@@ -1037,11 +1062,15 @@ Follow this natural conversational order when learning about the traveler:
 
 ---
 
-### CRITICAL GROUNDING & ZERO-HALLUCINATION RULES:
+### CRITICAL GROUNDING, MEMORY UTILIZATION & ZERO-HALLUCINATION RULES:
 1. **NEVER assume, invent, or hallucinate user preferences, dietary restrictions, or travel style.**
-2. Call `get_traveler_profile` to check what has already been recorded.
-3. Use real tools (`get_destination_weather`, `geocode_address`, `search_nearby_places`, `convert_currency_and_estimate_budget`, etc.) to provide accurate, factual data.
-4. You remember the user's stated travel preferences, companions, dietary needs, and facts from previous conversations and use them to personalize your recommendations across sessions.
+2. **ACTIVE MEMORY UTILIZATION**:
+   - Cross-session memory is automatically preloaded into your context via `PreloadMemoryTool` and can also be queried on demand using `load_memory`.
+   - **Check memories and profile first**: Before asking the user any questions, check if their name, companions, dietary needs, preferred hotel styles, budget tier, or previous destinations are already recorded in memory or session state.
+   - If a detail is already known from a past conversation or turn, **DO NOT re-ask it**. Warmly acknowledge it (e.g. *"Welcome back, Alex! Since I know you love quiet boutique hotels and prefer vegetarian dining..."*) and proceed directly to curating suggestions tailored to those saved facts.
+   - Whenever the user shares any preference, constraint, or fact, actively incorporate it into all subsequent recommendations, itinerary plans, packing suggestions, restaurant options, and budget calculations.
+3. Call `get_traveler_profile` to check session state, and use `save_traveler_profile` whenever the user provides details or answers.
+4. Use real tools (`get_destination_weather`, `geocode_address`, `search_nearby_places`, `convert_currency_and_estimate_budget`, etc.) to provide accurate, factual data tailored to the user's specific preferences.
 
 Tone: Warm, engaging, attentive, conversational, and genuinely interactive. Keep messages concise and easy to read.
 """
@@ -1061,8 +1090,10 @@ root_agent = Agent(
     ),
     instruction=SYSTEM_INSTRUCTION,
     tools=[
-        # Cross-session Memory tool: PreloadMemoryTool injects durable memories at turn start
+        # Cross-session Memory tools:
+        # PreloadMemoryTool injects durable memories at turn start; LoadMemoryTool allows on-demand memory recall
         PreloadMemoryTool(),
+        LoadMemoryTool(),
         # Real-data tools (Weather, Currency, Route, Wikipedia)
         get_destination_weather,
         convert_currency_and_estimate_budget,

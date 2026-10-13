@@ -50,19 +50,20 @@ except Exception:
 
 # Local ADK runner imports
 from google.adk.runners import Runner
-from google.adk.sessions import InMemorySessionService
-from google.adk.artifacts import InMemoryArtifactService
 from app.agent import app as adk_app, root_agent
+from app.app_utils import services
 
 app = FastAPI(title="Voyage Concierge Frontend")
 
-# Local ADK Runner setup with in-memory persistence across turns
-session_service = InMemorySessionService()
-artifact_service = InMemoryArtifactService()
+# ADK Runner setup using shared session, artifact, and Memory Bank services
+session_service = services.get_session_service()
+artifact_service = services.get_artifact_service()
+memory_service = services.get_memory_service()
 local_runner = Runner(
     app=adk_app,
     session_service=session_service,
     artifact_service=artifact_service,
+    memory_service=memory_service,
     auto_create_session=True,
 )
 
