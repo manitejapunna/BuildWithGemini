@@ -1,0 +1,751 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Voyage Concierge · Bespoke Travel & Itinerary Assistant</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&family=Playfair+Display:ital,wght@0,600;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@24,400,0,0" />
+<style>
+  :root {
+    --primary: #0f4c5c;
+    --primary-light: #e5f1f4;
+    --accent: #e36414;
+    --accent-hover: #c85309;
+    --sand: #fb8b24;
+    --bg-dark: #071e22;
+    --bg-card: #ffffff;
+    --text-main: #1f2937;
+    --text-muted: #5b6777;
+    --border: #e2e8f0;
+    --shadow-sm: 0 2px 4px rgba(15, 76, 92, 0.05);
+    --shadow-md: 0 6px 18px rgba(15, 76, 92, 0.08);
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body {
+    height: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: 'Plus Jakarta Sans', system-ui, sans-serif;
+    background: #f4f7f6;
+    color: var(--text-main);
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+
+  /* Header banner with travel aesthetics */
+  header {
+    background: linear-gradient(135deg, #071e22 0%, #0f4c5c 60%, #1d7874 100%);
+    color: #ffffff;
+    padding: 0.85rem 1.8rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: var(--shadow-md);
+    flex-shrink: 0;
+    z-index: 20;
+  }
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .brand-icon {
+    background: rgba(255, 255, 255, 0.15);
+    border-radius: 10px;
+    padding: 0.4rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #ffd166;
+  }
+  .brand-title h1 {
+    font-family: 'Playfair Display', serif;
+    font-size: 1.35rem;
+    font-weight: 700;
+    letter-spacing: 0.3px;
+  }
+  .brand-title p {
+    font-size: 0.75rem;
+    opacity: 0.85;
+    letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+  .header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+  .badge-model {
+    font-size: 0.75rem;
+    padding: 0.35rem 0.75rem;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+  .badge-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: #06d6a0;
+    box-shadow: 0 0 8px #06d6a0;
+  }
+  .btn-reset {
+    font-size: 0.78rem;
+    padding: 0.4rem 0.85rem;
+    background: rgba(239, 68, 68, 0.2);
+    border: 1px solid rgba(239, 68, 68, 0.5);
+    color: #fecaca;
+    border-radius: 20px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.35rem;
+    font-weight: 600;
+    transition: all 0.2s ease;
+  }
+  .btn-reset:hover {
+    background: rgba(239, 68, 68, 0.8);
+    color: #ffffff;
+  }
+
+  /* Main Workspace: 2-column travel dashboard */
+  .workspace {
+    flex: 1 1 auto;
+    display: flex;
+    min-height: 0;
+    position: relative;
+    overflow: hidden;
+  }
+
+  /* Chat column */
+  .chat-panel {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    background: #f8fafc;
+    border-right: 1px solid var(--border);
+  }
+
+  /* Quick inspiration chips bar */
+  .quick-chips {
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.6rem;
+    padding: 0.75rem 1.2rem;
+    background: #ffffff;
+    border-bottom: 1px solid var(--border);
+    overflow-x: auto;
+    white-space: nowrap;
+    align-items: center;
+  }
+  .chips-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    font-weight: 700;
+    color: var(--text-muted);
+    letter-spacing: 0.5px;
+    margin-right: 0.2rem;
+  }
+  .chip {
+    font-size: 0.8rem;
+    font-weight: 600;
+    padding: 0.45rem 0.85rem;
+    border-radius: 20px;
+    background: var(--primary-light);
+    color: var(--primary);
+    border: 1px solid #c8e1e7;
+    cursor: pointer;
+    transition: all 0.18s ease;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    user-select: none;
+  }
+  .chip:hover {
+    background: var(--primary);
+    color: #fff;
+    border-color: var(--primary);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-sm);
+  }
+  .chip:active {
+    transform: translateY(0);
+  }
+
+  /* Messages area */
+  #log {
+    flex: 1 1 0;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 1.5rem;
+    display: flex;
+    flex-direction: column;
+    gap: 1.1rem;
+    background: #f8fafc;
+  }
+
+  .msg {
+    display: flex;
+    gap: 0.75rem;
+    max-width: 88%;
+    animation: fadeIn 0.25s ease forwards;
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .msg.agent { align-self: flex-start; }
+  .msg.user { align-self: flex-end; flex-direction: row-reverse; }
+
+  .avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 1.15rem;
+  }
+  .msg.agent .avatar {
+    background: var(--primary);
+    color: #fff;
+    box-shadow: var(--shadow-sm);
+  }
+  .msg.user .avatar {
+    background: var(--accent);
+    color: #fff;
+  }
+
+  .bubble {
+    padding: 0.95rem 1.25rem;
+    border-radius: 16px;
+    font-size: 0.93rem;
+    line-height: 1.55;
+    position: relative;
+    box-shadow: var(--shadow-sm);
+    word-break: break-word;
+  }
+  .msg.agent .bubble {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    color: var(--text-main);
+    border-top-left-radius: 4px;
+  }
+  .msg.user .bubble {
+    background: var(--primary);
+    color: #ffffff;
+    border-top-right-radius: 4px;
+  }
+
+  /* Form and Input Area (Permanently pinned at bottom) */
+  #form {
+    flex-shrink: 0;
+    display: flex;
+    gap: 0.6rem;
+    padding: 1rem 1.4rem;
+    background: #ffffff;
+    border-top: 2px solid var(--border);
+    box-shadow: 0 -4px 12px rgba(0,0,0,0.03);
+    z-index: 15;
+  }
+  .input-wrapper {
+    flex: 1;
+    position: relative;
+  }
+  #input {
+    width: 100%;
+    padding: 0.9rem 1.15rem;
+    border: 2px solid var(--border);
+    border-radius: 12px;
+    font-size: 0.96rem;
+    font-family: inherit;
+    outline: none;
+    transition: all 0.2s ease;
+    background: #fafafa;
+  }
+  #input:focus {
+    background: #ffffff;
+    border-color: var(--primary);
+    box-shadow: 0 0 0 3px rgba(15, 76, 92, 0.14);
+  }
+  #sendBtn {
+    padding: 0.9rem 1.6rem;
+    border: none;
+    border-radius: 12px;
+    background: var(--accent);
+    color: #ffffff;
+    font-size: 0.95rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 0.45rem;
+    transition: all 0.2s ease;
+    box-shadow: 0 3px 8px rgba(227, 100, 20, 0.3);
+    user-select: none;
+  }
+  #sendBtn:hover {
+    background: var(--accent-hover);
+    transform: translateY(-1px);
+    box-shadow: 0 5px 12px rgba(227, 100, 20, 0.4);
+  }
+  #sendBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+  }
+
+  /* Right Sidebar: Traveler Profile & Preparation Checklist */
+  .sidebar {
+    width: 350px;
+    flex-shrink: 0;
+    background: #ffffff;
+    display: flex;
+    flex-direction: column;
+    overflow-y: auto;
+    padding: 1.25rem;
+    gap: 1.25rem;
+    border-left: 1px solid var(--border);
+  }
+  .card-widget {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 1.1rem;
+    box-shadow: var(--shadow-sm);
+  }
+  .widget-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 0.9rem;
+    padding-bottom: 0.5rem;
+    border-bottom: 1px dashed var(--border);
+  }
+  .widget-header h3 {
+    font-size: 0.85rem;
+    font-weight: 700;
+    color: var(--primary);
+    text-transform: uppercase;
+    letter-spacing: 0.6px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+  }
+
+  /* Profile Attributes list */
+  .profile-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    font-size: 0.85rem;
+  }
+  .profile-item {
+    display: flex;
+    flex-direction: column;
+    gap: 0.2rem;
+    background: #f8fafc;
+    padding: 0.55rem 0.75rem;
+    border-radius: 8px;
+    border-left: 3px solid var(--primary);
+  }
+  .profile-label {
+    font-weight: 600;
+    color: var(--text-muted);
+    font-size: 0.72rem;
+    text-transform: uppercase;
+  }
+  .profile-val {
+    color: var(--text-main);
+    font-weight: 500;
+    line-height: 1.35;
+  }
+
+  /* Checklist widget */
+  .checklist-items {
+    display: flex;
+    flex-direction: column;
+    gap: 0.55rem;
+  }
+  .task-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    font-size: 0.83rem;
+    padding: 0.45rem 0.6rem;
+    border-radius: 8px;
+    background: #fafafa;
+    border: 1px solid var(--border);
+  }
+  .task-item.done {
+    background: #edf7f4;
+    border-color: #bbf0e2;
+  }
+  .task-item.done .task-title {
+    text-decoration: line-through;
+    color: #4b6b63;
+  }
+  .task-check {
+    margin-top: 2px;
+    color: var(--accent);
+  }
+  .task-item.done .task-check {
+    color: #06d6a0;
+  }
+  .task-title {
+    flex: 1;
+    line-height: 1.35;
+  }
+
+  /* Markdown & formatting in agent messages */
+  .bubble h1, .bubble h2, .bubble h3, .bubble h4 {
+    margin-top: 0.85rem;
+    margin-bottom: 0.4rem;
+    color: var(--primary);
+    font-family: 'Playfair Display', serif;
+  }
+  .bubble h2 { font-size: 1.15rem; }
+  .bubble h3 { font-size: 1.05rem; }
+  .bubble h4 { font-size: 0.95rem; }
+  .bubble p { margin-bottom: 0.65rem; }
+  .bubble p:last-child { margin-bottom: 0; }
+  .bubble ul, .bubble ol {
+    margin: 0.5rem 0 0.75rem 1.25rem;
+  }
+  .bubble li { margin-bottom: 0.35rem; }
+  .bubble table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+    font-size: 0.85rem;
+  }
+  .bubble th, .bubble td {
+    padding: 0.55rem 0.75rem;
+    border: 1px solid var(--border);
+    text-align: left;
+  }
+  .bubble th {
+    background: var(--primary-light);
+    color: var(--primary);
+    font-weight: 600;
+  }
+  .bubble pre {
+    background: #071e22;
+    color: #e2e8f0;
+    padding: 0.75rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    font-size: 0.82rem;
+    margin: 0.6rem 0;
+  }
+  .bubble code {
+    font-family: monospace;
+    background: #eef2f6;
+    padding: 0.15rem 0.35rem;
+    border-radius: 4px;
+    font-size: 0.85em;
+  }
+  .bubble pre code {
+    background: transparent;
+    padding: 0;
+    color: inherit;
+  }
+
+  /* Responsive layout */
+  @media (max-width: 900px) {
+    .sidebar { display: none; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="brand">
+    <div class="brand-icon">
+      <span class="material-symbols-outlined">explore</span>
+    </div>
+    <div class="brand-title">
+      <h1>Voyage Concierge</h1>
+      <p>Bespoke Journeys · Global Itineraries · Visa & Preparation Guide</p>
+    </div>
+  </div>
+  <div class="header-actions">
+    <div class="badge-model">
+      <div class="badge-dot"></div>
+      <span>Gemini 3.8 Flash</span>
+    </div>
+    <button class="btn-reset" onclick="resetTravelerSession()" title="Reset session and start completely fresh">
+      <span class="material-symbols-outlined" style="font-size:16px;">refresh</span>
+      <span>New Session</span>
+    </button>
+  </div>
+</header>
+
+<div class="workspace">
+  <!-- Main Chat Panel -->
+  <div class="chat-panel">
+    <!-- Quick inspiration chips bar -->
+    <div class="quick-chips">
+      <span class="chips-label">Quick Actions:</span>
+      <div class="chip" onclick="handleChipClick('Hi! I want to start planning my vacation.')">
+        <span class="material-symbols-outlined" style="font-size:16px;">flight_takeoff</span> Start Discovery Questions
+      </div>
+      <div class="chip" onclick="handleChipClick('I want to plan a trip to Paris. What questions do you need from me?')">
+        <span class="material-symbols-outlined" style="font-size:16px;">map</span> Plan for Paris
+      </div>
+      <div class="chip" onclick="handleChipClick('What are the visa and passport validity requirements for visiting Japan and France with a US passport?')">
+        <span class="material-symbols-outlined" style="font-size:16px;">verified_user</span> Visa & Passport Check
+      </div>
+      <div class="chip" onclick="handleChipClick('Show me my current trip preparation checklist.')">
+        <span class="material-symbols-outlined" style="font-size:16px;">checklist</span> Trip Checklist
+      </div>
+    </div>
+
+    <!-- Message Stream -->
+    <div id="log">
+      <div class="msg agent">
+        <div class="avatar"><span class="material-symbols-outlined">luggage</span></div>
+        <div class="bubble">
+          <strong>Welcome to Voyage Concierge! 🌍✨</strong>
+          <p>I am your strictly grounded AI travel concierge. I only personalize your journey using the preferences you explicitly share with me—no assumptions or made-up preferences.</p>
+          <p>You can type your answers or questions in the input box below, or click any of the <strong>Quick Action</strong> chips above to get started!</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Pinned Input Box Form -->
+    <form id="form">
+      <div class="input-wrapper">
+        <input id="input" type="text" placeholder="Type your answers, destination ideas, or travel questions here…" autocomplete="off" autofocus>
+      </div>
+      <button id="sendBtn" type="submit">
+        <span>Send</span>
+        <span class="material-symbols-outlined" style="font-size:18px;">send</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Traveler Profile & Checklist Sidebar -->
+  <div class="sidebar">
+    <div class="card-widget">
+      <div class="widget-header">
+        <h3><span class="material-symbols-outlined" style="font-size:18px;">badge</span> Traveler Profile</h3>
+        <span id="profileStatus" style="font-size:0.75rem; color:var(--text-muted);">Active</span>
+      </div>
+      <div class="profile-list" id="profileList">
+        <div class="profile-item">
+          <span class="profile-label">Traveler & Party</span>
+          <span class="profile-val" id="valParty">Not recorded yet</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">Dining & Allergies</span>
+          <span class="profile-val" id="valDiet">Not recorded yet</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">Accommodation Style</span>
+          <span class="profile-val" id="valHotel">Not recorded yet</span>
+        </div>
+        <div class="profile-item">
+          <span class="profile-label">Packing & Shopping</span>
+          <span class="profile-val" id="valShopping">Not recorded yet</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="card-widget">
+      <div class="widget-header">
+        <h3><span class="material-symbols-outlined" style="font-size:18px;">task_alt</span> Preparation Checklist</h3>
+        <span id="checklistCount" style="font-size:0.75rem; color:var(--accent); font-weight:600;">0 tasks</span>
+      </div>
+      <div class="checklist-items" id="checklistItems">
+        <div class="task-item">
+          <span class="material-symbols-outlined task-check" style="font-size:18px;">radio_button_unchecked</span>
+          <span class="task-title">Check passport expiry (>6 months validity)</span>
+        </div>
+        <div class="task-item">
+          <span class="material-symbols-outlined task-check" style="font-size:18px;">radio_button_unchecked</span>
+          <span class="task-title">Confirm visa / digital entry declarations</span>
+        </div>
+        <div class="task-item">
+          <span class="material-symbols-outlined task-check" style="font-size:18px;">radio_button_unchecked</span>
+          <span class="task-title">Reserve boutique stays & flexible tickets</span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+const log = document.getElementById("log");
+const form = document.getElementById("form");
+const input = document.getElementById("input");
+const sendBtn = document.getElementById("sendBtn");
+
+function el(tag, cls, text) {
+  const e = document.createElement(tag);
+  if (cls) e.className = cls;
+  if (text != null) e.textContent = text;
+  return e;
+}
+
+function bubble(who) {
+  const m = el("div", "msg " + who);
+  const av = el("div", "avatar");
+  const icon = el("span", "material-symbols-outlined");
+  icon.textContent = who === "user" ? "person" : "luggage";
+  av.appendChild(icon);
+
+  const b = el("div", "bubble");
+  m.appendChild(av);
+  m.appendChild(b);
+  log.appendChild(m);
+  log.scrollTop = log.scrollHeight;
+  return b;
+}
+
+// Convert markdown to clean HTML
+function formatMarkdown(text) {
+  if (!text) return "";
+  let html = text
+    .replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;")
+    .replace(/^### (.*$)/gim, '<h3>$1</h3>')
+    .replace(/^## (.*$)/gim, '<h2>$1</h2>')
+    .replace(/^# (.*$)/gim, '<h1>$1</h1>')
+    .replace(/\*\*(.*?)\*\*/gim, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/gim, '<em>$1</em>')
+    .replace(/```([\s\S]*?)```/gim, '<pre><code>$1</code></pre>')
+    .replace(/`([^`]+)`/gim, '<code>$1</code>')
+    .replace(/^\s*[-*]\s+(.*$)/gim, '<li>$1</li>')
+    .replace(/(<li>.*<\/li>)/gims, '<ul>$1</ul>')
+    .replace(/\n\n+/g, '<br/><br/>')
+    .replace(/\n/g, '<br/>');
+
+  return html;
+}
+
+function renderReply(b, parts) {
+  b.innerHTML = "";
+  const texts = parts.filter(p => p && (p.kind === "text" || (!p.kind && p.text))).map(p => p.text || "");
+  const fullText = texts.join("\n").trim();
+  if (fullText) {
+    b.innerHTML = formatMarkdown(fullText);
+  } else {
+    b.textContent = "(no response)";
+  }
+  log.scrollTop = log.scrollHeight;
+  syncSidebar();
+}
+
+async function syncSidebar() {
+  try {
+    const res = await fetch("/api/state?user_id=web-traveler");
+    if (!res.ok) return;
+    const data = await res.json();
+    if (data.profile) {
+      const p = data.profile;
+      document.getElementById("valParty").textContent = (p.traveler_name || "Traveler") + (p.travel_companions ? " · " + p.travel_companions : "");
+      document.getElementById("valDiet").textContent = p.food_habits_and_allergies || "No restrictions noted";
+      document.getElementById("valHotel").textContent = p.hotel_preferences || "Boutique / Walkable";
+      document.getElementById("valShopping").textContent = p.packing_and_shopping_interests || "Artisan & local specialties";
+    } else {
+      document.getElementById("valParty").textContent = "Not recorded yet";
+      document.getElementById("valDiet").textContent = "Not recorded yet";
+      document.getElementById("valHotel").textContent = "Not recorded yet";
+      document.getElementById("valShopping").textContent = "Not recorded yet";
+    }
+    if (data.checklist && data.checklist.length > 0) {
+      const container = document.getElementById("checklistItems");
+      container.innerHTML = "";
+      document.getElementById("checklistCount").textContent = `${data.checklist.filter(t => t.done).length}/${data.checklist.length} done`;
+      data.checklist.forEach(item => {
+        const row = el("div", "task-item" + (item.done ? " done" : ""));
+        const icon = el("span", "material-symbols-outlined task-check");
+        icon.style.fontSize = "18px";
+        icon.textContent = item.done ? "check_circle" : "radio_button_unchecked";
+        const title = el("span", "task-title", item.title);
+        row.appendChild(icon);
+        row.appendChild(title);
+        container.appendChild(row);
+      });
+    } else {
+      document.getElementById("checklistCount").textContent = "0 tasks";
+    }
+  } catch (e) {
+    console.warn("Could not sync sidebar state", e);
+  }
+}
+
+async function sendMessage(text) {
+  if (!text || !text.trim()) return;
+  const userB = bubble("user");
+  userB.textContent = text;
+  input.value = "";
+  sendBtn.disabled = true;
+
+  const b = bubble("agent");
+  b.innerHTML = "<em>Reviewing itineraries and travel intelligence…</em>";
+
+  try {
+    const res = await fetch("/chat", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ message: text, user_id: "web-traveler" })
+    });
+    const raw = await res.text();
+    let data;
+    try { data = JSON.parse(raw); }
+    catch { throw new Error(`Server returned HTTP ${res.status}: ${raw.slice(0, 200)}`); }
+    renderReply(b, data.parts || []);
+  } catch (e) {
+    b.textContent = "Error: " + e.message;
+  } finally {
+    sendBtn.disabled = false;
+    input.focus();
+  }
+}
+
+async function resetTravelerSession() {
+  if (!confirm("Are you sure you want to start a new travel session? This will clear your traveler profile and checklist.")) return;
+  try {
+    await fetch("/api/reset", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ user_id: "web-traveler" })
+    });
+    log.innerHTML = "";
+    const b = bubble("agent");
+    b.innerHTML = "<strong>Session reset! 🌟</strong><p>I have cleared all prior traveler profiles and checklists. Where would you like to travel, or would you like to answer discovery questions to set up your preferences?</p>";
+    syncSidebar();
+  } catch (e) {
+    alert("Could not reset session: " + e.message);
+  }
+}
+
+form.addEventListener("submit", (ev) => {
+  ev.preventDefault();
+  sendMessage(input.value.trim());
+});
+
+function handleChipClick(promptText) {
+  sendMessage(promptText);
+}
+
+// Initial sync on load
+syncSidebar();
+input.focus();
+</script>
+</body>
+</html>
